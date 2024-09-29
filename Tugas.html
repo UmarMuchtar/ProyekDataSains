@@ -60,7 +60,6 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'Tugas';</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Welcome to your Jupyter Book" href="intro.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -122,6 +121,8 @@
       
       
       
+        
+      
       <div class="bd-sidebar-primary bd-sidebar">
         
 
@@ -175,10 +176,7 @@
                 </a>
             </li>
         </ul>
-        <ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Deteksi Ulasan Palsu Pada Aplikasi di Google Playstore</a></li>
-</ul>
-
+        
     </div>
 </nav></div>
     </div>
@@ -382,8 +380,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-understanding">1. Data Understanding</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pengumpulan-data">Pengumpulan Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-dataset">Deskripsi Dataset</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-fitur-dan-label">Deskripsi Fitur dan Label</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-fitur">Deskripsi Fitur</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-preprocessing">2. Data Preprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning">Data Cleaning</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pendeteksian-outlier">Pendeteksian Outlier</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pendeteksian-missing-value">Pendeteksian Missing Value</a></li>
 </ul>
@@ -448,20 +447,854 @@ document.write(`
 </section>
 <section id="pengumpulan-data">
 <h3>Pengumpulan Data<a class="headerlink" href="#pengumpulan-data" title="Link to this heading">#</a></h3>
+<p>Pengumpulan data dilakukan dengan menggunakan <em>Google Play Scraper</em>. Untuk cara pengumpulan datanya adalah sebagai berikut:</p>
+<ul class="simple">
+<li><p>Instalasi <em>google-play-scraper</em></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>google-play-scraper
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Requirement already satisfied: google-play-scraper in c:\users\lenovo\appdata\local\packages\pythonsoftwarefoundation.python.3.11_qbz5n2kfra8p0\localcache\local-packages\python311\site-packages (1.2.7)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[notice] A new release of pip is available: 24.1 -&gt; 24.2
+[notice] To update, run: C:\Users\Lenovo\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\python.exe -m pip install --upgrade pip
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Import app, pandas, dan numpy.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">google_play_scraper</span> <span class="kn">import</span> <span class="n">app</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Melakukan scraping terhadap aplikasi yang diinginkan dengan memasukkan link aplikasi pada google playstore ke dalam code.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">google_play_scraper</span> <span class="kn">import</span> <span class="n">Sort</span><span class="p">,</span> <span class="n">reviews</span>
+
+<span class="n">result</span><span class="p">,</span> <span class="n">continuation_token</span> <span class="o">=</span> <span class="n">reviews</span><span class="p">(</span>
+    <span class="s1">&#39;com.facebook.katana&#39;</span><span class="p">,</span> <span class="c1"># link aplikasi yang akan dilakukan scraping</span>
+    <span class="n">lang</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="c1"># bahasa</span>
+    <span class="n">country</span><span class="o">=</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="c1"># negara tempat aplikasi yang dilakukan scraping</span>
+    <span class="n">sort</span><span class="o">=</span><span class="n">Sort</span><span class="o">.</span><span class="n">NEWEST</span><span class="p">,</span> <span class="c1"># kategori review yang akan di scraping(MOST_RELEVANT untuk review paling relevan dan NEWEST untuk review terbaru)</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="c1"># jumlah review yang ingin didapatkan dari scraping</span>
+    <span class="n">filter_score_with</span><span class="o">=</span><span class="kc">None</span> <span class="c1"># filter berdasarkan rating (1-5), default none (review dengan semua rating)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Mengubah hasil ulasan menjadi dataframe dengan kolom, kemudian memecah elemen-elemen di dalamnya menjadi kolom-kolom baru.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">),</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;review&#39;</span><span class="p">])</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;review&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()))</span>
+
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span> <span class="c1"># menampilkan sampel data hasil scraping dari google playstore</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>reviewId</th>
+      <th>userName</th>
+      <th>userImage</th>
+      <th>content</th>
+      <th>score</th>
+      <th>thumbsUpCount</th>
+      <th>reviewCreatedVersion</th>
+      <th>at</th>
+      <th>replyContent</th>
+      <th>repliedAt</th>
+      <th>appVersion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>70d8c9bf-19ba-463e-b62e-75a3caf05f10</td>
+      <td>Rivan Hambur</td>
+      <td>https://play-lh.googleusercontent.com/a-/ALV-U...</td>
+      <td>bagus👍</td>
+      <td>5</td>
+      <td>0</td>
+      <td>483.0.0.51.72</td>
+      <td>2024-09-28 23:05:15</td>
+      <td>None</td>
+      <td>None</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>d53daa97-33e6-4dfb-a979-bd89637dd769</td>
+      <td>NYAI TARTI</td>
+      <td>https://play-lh.googleusercontent.com/a/ACg8oc...</td>
+      <td>Sangat bermanfaat</td>
+      <td>5</td>
+      <td>0</td>
+      <td>436.0.0.35.101</td>
+      <td>2024-09-28 23:04:04</td>
+      <td>None</td>
+      <td>None</td>
+      <td>436.0.0.35.101</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2fcc0c0e-9c28-4172-9411-ba5a892b22ae</td>
+      <td>Abdulkadir Kadir</td>
+      <td>https://play-lh.googleusercontent.com/a/ACg8oc...</td>
+      <td>Mantap</td>
+      <td>5</td>
+      <td>0</td>
+      <td>483.0.0.51.72</td>
+      <td>2024-09-28 23:03:14</td>
+      <td>None</td>
+      <td>None</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2ff5c6b6-2120-4265-b13e-3311d52c10f2</td>
+      <td>Hidayat kurniawan</td>
+      <td>https://play-lh.googleusercontent.com/a/ACg8oc...</td>
+      <td>Mantap</td>
+      <td>5</td>
+      <td>0</td>
+      <td>483.0.0.51.72</td>
+      <td>2024-09-28 23:03:00</td>
+      <td>None</td>
+      <td>None</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1cae0f28-0233-4fdb-ba73-8fb6506c9e28</td>
+      <td>Dedet Albanjari</td>
+      <td>https://play-lh.googleusercontent.com/a/ACg8oc...</td>
+      <td>pk banget.</td>
+      <td>5</td>
+      <td>0</td>
+      <td>483.0.0.51.72</td>
+      <td>2024-09-28 23:00:32</td>
+      <td>None</td>
+      <td>None</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<ul class="simple">
+<li><p>Menyimpan data review ke dalam file csv</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;reviews.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>Mengunduh file csv</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">FileLink</span>
+
+<span class="n">file_path</span> <span class="o">=</span> <span class="s1">&#39;reviews.csv&#39;</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">FileLink</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><a href='reviews.csv' target='_blank'>reviews.csv</a><br></div></div>
+</div>
 </section>
 <section id="deskripsi-dataset">
 <h3>Deskripsi Dataset<a class="headerlink" href="#deskripsi-dataset" title="Link to this heading">#</a></h3>
+<p>Dataset ini merupakan  dataset yang menampung informasi mengenai ulasan dari suatu aplikasi di Google Play Store. Informasi tersebut mencakup username pemberi ulasan, isi ulasan, rating terhadap aplikasi, tanggal ulasan dibuat dan lain lain.</p>
 </section>
-<section id="deskripsi-fitur-dan-label">
-<h3>Deskripsi Fitur dan Label<a class="headerlink" href="#deskripsi-fitur-dan-label" title="Link to this heading">#</a></h3>
+<section id="deskripsi-fitur">
+<h3>Deskripsi Fitur<a class="headerlink" href="#deskripsi-fitur" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>reviewId : berisi ID dari ulasan</p></li>
+<li><p>userName : berisi username dari akun yang memberikan ulasan</p></li>
+<li><p>userImage : berisi URL foto profil akun yang memberikan ulasan</p></li>
+<li><p>content : berisi komentar yang diberikan oleh user</p></li>
+<li><p>score : berisi rating dari user</p></li>
+<li><p>thumbsUpCount : berisi jumlah like yang pada sebuah ulasan</p></li>
+<li><p>reviewCreateVersion : berisi versi aplikasi yang diberi ulasan</p></li>
+<li><p>at : berisi tanggal ulasan dibuat</p></li>
+<li><p>replyContent : berisi balasan ulasan</p></li>
+<li><p>repliedAt : berisi tanggal balasan ulasan</p></li>
+<li><p>appVersion : berisi versi aplikasi saat ini</p></li>
+</ul>
 </section>
 <section id="data-preprocessing">
 <h3>2. Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Link to this heading">#</a></h3>
+<section id="data-cleaning">
+<h4>Data Cleaning<a class="headerlink" href="#data-cleaning" title="Link to this heading">#</a></h4>
+<p>Pada langkah ini dilakukan perhitungan korelasi antara fitur reviewCreatedVersion dan appVersion.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
+
+<span class="c1"># Baca data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Buat tabel kontingensi</span>
+<span class="n">contingency_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;reviewCreatedVersion&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;appVersion&#39;</span><span class="p">])</span>
+
+<span class="c1"># Hitung Chi-Square statistic dan p-value</span>
+<span class="n">chi2</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">dof</span><span class="p">,</span> <span class="n">expected</span> <span class="o">=</span> <span class="n">chi2_contingency</span><span class="p">(</span><span class="n">contingency_table</span><span class="p">)</span>
+
+<span class="c1"># Hitung Cramer&#39;s V</span>
+<span class="n">n</span> <span class="o">=</span> <span class="n">contingency_table</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">min_dim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">contingency_table</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+<span class="n">cramer_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">chi2</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">min_dim</span><span class="p">))</span>
+
+<span class="c1"># Cetak hasil</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cramer&#39;s V: </span><span class="si">{</span><span class="n">cramer_v</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">FileNotFoundError</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">line</span> <span class="mi">5</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">chi2_contingency</span>
+<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="c1"># Baca data</span>
+<span class="ne">----&gt; </span><span class="mi">5</span> <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="c1"># Buat tabel kontingensi</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="n">contingency_table</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;reviewCreatedVersion&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;appVersion&#39;</span><span class="p">])</span>
+
+<span class="nn">File ~\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\parsers\readers.py:1026,</span> in <span class="ni">read_csv</span><span class="nt">(filepath_or_buffer, sep, delimiter, header, names, index_col, usecols, dtype, engine, converters, true_values, false_values, skipinitialspace, skiprows, skipfooter, nrows, na_values, keep_default_na, na_filter, verbose, skip_blank_lines, parse_dates, infer_datetime_format, keep_date_col, date_parser, date_format, dayfirst, cache_dates, iterator, chunksize, compression, thousands, decimal, lineterminator, quotechar, quoting, doublequote, escapechar, comment, encoding, encoding_errors, dialect, on_bad_lines, delim_whitespace, low_memory, memory_map, float_precision, storage_options, dtype_backend)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1013</span> <span class="n">kwds_defaults</span> <span class="o">=</span> <span class="n">_refine_defaults_read</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">1014</span>     <span class="n">dialect</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1015</span>     <span class="n">delimiter</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1022</span>     <span class="n">dtype_backend</span><span class="o">=</span><span class="n">dtype_backend</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1023</span> <span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1024</span> <span class="n">kwds</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwds_defaults</span><span class="p">)</span>
+<span class="ne">-&gt; </span><span class="mi">1026</span> <span class="k">return</span> <span class="n">_read</span><span class="p">(</span><span class="n">filepath_or_buffer</span><span class="p">,</span> <span class="n">kwds</span><span class="p">)</span>
+
+<span class="nn">File ~\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\parsers\readers.py:620,</span> in <span class="ni">_read</span><span class="nt">(filepath_or_buffer, kwds)</span>
+<span class="g g-Whitespace">    </span><span class="mi">617</span> <span class="n">_validate_names</span><span class="p">(</span><span class="n">kwds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;names&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+<span class="g g-Whitespace">    </span><span class="mi">619</span> <span class="c1"># Create the parser.</span>
+<span class="ne">--&gt; </span><span class="mi">620</span> <span class="n">parser</span> <span class="o">=</span> <span class="n">TextFileReader</span><span class="p">(</span><span class="n">filepath_or_buffer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">622</span> <span class="k">if</span> <span class="n">chunksize</span> <span class="ow">or</span> <span class="n">iterator</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">623</span>     <span class="k">return</span> <span class="n">parser</span>
+
+<span class="nn">File ~\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\parsers\readers.py:1620,</span> in <span class="ni">TextFileReader.__init__</span><span class="nt">(self, f, engine, **kwds)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1617</span>     <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;has_index_names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwds</span><span class="p">[</span><span class="s2">&quot;has_index_names&quot;</span><span class="p">]</span>
+<span class="g g-Whitespace">   </span><span class="mi">1619</span> <span class="bp">self</span><span class="o">.</span><span class="n">handles</span><span class="p">:</span> <span class="n">IOHandles</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="ne">-&gt; </span><span class="mi">1620</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_engine</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">)</span>
+
+<span class="nn">File ~\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\parsers\readers.py:1880,</span> in <span class="ni">TextFileReader._make_engine</span><span class="nt">(self, f, engine)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1878</span>     <span class="k">if</span> <span class="s2">&quot;b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
+<span class="g g-Whitespace">   </span><span class="mi">1879</span>         <span class="n">mode</span> <span class="o">+=</span> <span class="s2">&quot;b&quot;</span>
+<span class="ne">-&gt; </span><span class="mi">1880</span> <span class="bp">self</span><span class="o">.</span><span class="n">handles</span> <span class="o">=</span> <span class="n">get_handle</span><span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">1881</span>     <span class="n">f</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1882</span>     <span class="n">mode</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1883</span>     <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;encoding&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="g g-Whitespace">   </span><span class="mi">1884</span>     <span class="n">compression</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;compression&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="g g-Whitespace">   </span><span class="mi">1885</span>     <span class="n">memory_map</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory_map&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+<span class="g g-Whitespace">   </span><span class="mi">1886</span>     <span class="n">is_text</span><span class="o">=</span><span class="n">is_text</span><span class="p">,</span>
+<span class="g g-Whitespace">   </span><span class="mi">1887</span>     <span class="n">errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;encoding_errors&quot;</span><span class="p">,</span> <span class="s2">&quot;strict&quot;</span><span class="p">),</span>
+<span class="g g-Whitespace">   </span><span class="mi">1888</span>     <span class="n">storage_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;storage_options&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="g g-Whitespace">   </span><span class="mi">1889</span> <span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">1890</span> <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">handles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="g g-Whitespace">   </span><span class="mi">1891</span> <span class="n">f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handles</span><span class="o">.</span><span class="n">handle</span>
+
+<span class="nn">File ~\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\pandas\io\common.py:873,</span> in <span class="ni">get_handle</span><span class="nt">(path_or_buf, mode, encoding, compression, memory_map, is_text, errors, storage_options)</span>
+<span class="g g-Whitespace">    </span><span class="mi">868</span> <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">869</span>     <span class="c1"># Check whether the filename is to be opened in binary mode.</span>
+<span class="g g-Whitespace">    </span><span class="mi">870</span>     <span class="c1"># Binary mode does not support &#39;encoding&#39; and &#39;newline&#39;.</span>
+<span class="g g-Whitespace">    </span><span class="mi">871</span>     <span class="k">if</span> <span class="n">ioargs</span><span class="o">.</span><span class="n">encoding</span> <span class="ow">and</span> <span class="s2">&quot;b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ioargs</span><span class="o">.</span><span class="n">mode</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">872</span>         <span class="c1"># Encoding</span>
+<span class="ne">--&gt; </span><span class="mi">873</span>         <span class="n">handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span>
+<span class="g g-Whitespace">    </span><span class="mi">874</span>             <span class="n">handle</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">875</span>             <span class="n">ioargs</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">876</span>             <span class="n">encoding</span><span class="o">=</span><span class="n">ioargs</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">877</span>             <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">878</span>             <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="g g-Whitespace">    </span><span class="mi">879</span>         <span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">880</span>     <span class="k">else</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">881</span>         <span class="c1"># Binary mode</span>
+<span class="g g-Whitespace">    </span><span class="mi">882</span>         <span class="n">handle</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">ioargs</span><span class="o">.</span><span class="n">mode</span><span class="p">)</span>
+
+<span class="ne">FileNotFoundError</span>: [Errno 2] No such file or directory: &#39;reviews_cleaned.csv&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Hasil dari perhitungan korelasi antara reviewCreatedVersion dan appVersion adalah 1.0, yang menunjukkan bahwa kedua fitur tersebut saling berhubungan dan bisa dihapus salah satunya.</p>
+<p>Pada langkah ini akan melakukan drop terhadap fitur yang tidak diperlukan saat pendeteksian yaitu userImage, replyContent, dan RepliedAt. Selain itu dilakukan drop terhadap fitur reviewCreatedVersion.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Membaca data dari file CSV</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Menampilkan informasi awal mengenai dataset sebelum penghapusan kolom</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data awal sebelum penghapusan kolom:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># Menghapus kolom yang tidak diperlukan</span>
+<span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;userImage&#39;</span><span class="p">,</span> <span class="s1">&#39;replyContent&#39;</span><span class="p">,</span> <span class="s1">&#39;repliedAt&#39;</span><span class="p">,</span> <span class="s1">&#39;reviewCreatedVersion&#39;</span><span class="p">]</span>
+<span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">columns_to_drop</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Menampilkan informasi setelah penghapusan kolom</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Data setelah penghapusan kolom:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="c1"># Menyimpan data yang telah diubah ke file baru jika diinginkan</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Data awal sebelum penghapusan kolom:
+                               reviewId              userName  \
+0  41c7fc48-35df-4544-a68a-a0fece45fec9  Achmad Hamdy Prayoga   
+1  4d7fa47f-79ee-4ad0-8df8-cbb09dbb0406              Hehe Kao   
+2  1b8c1ac5-73a6-4efb-b501-d4b759e8c8c9          Musanif Arif   
+3  c9820d7a-ae5f-4d40-9168-0a54b6c385f8       Nurdin Setiawan   
+4  2ae3d2cf-6633-43cd-bf29-aec21bf8d185          Apoy Saputra   
+
+                                           userImage  \
+0  https://play-lh.googleusercontent.com/a-/ALV-U...   
+1  https://play-lh.googleusercontent.com/a/ACg8oc...   
+2  https://play-lh.googleusercontent.com/a/ACg8oc...   
+3  https://play-lh.googleusercontent.com/a/ACg8oc...   
+4  https://play-lh.googleusercontent.com/a/ACg8oc...   
+
+                                        content  score  thumbsUpCount  \
+0                                   Terimakasih      5              0   
+1      Kalo GK bisa bikin iklan Jan bikin iklan      1              0   
+2                                        mantap      5              0   
+3  Facebook sangat bermanfaat bagi kaum rebahan      5              0   
+4                                  Sangat bagus      5              0   
+
+  reviewCreatedVersion                   at  replyContent  repliedAt  \
+0                  NaN  2024-09-28 14:11:54           NaN        NaN   
+1        483.0.0.51.72  2024-09-28 14:10:28           NaN        NaN   
+2        482.0.0.51.80  2024-09-28 14:09:20           NaN        NaN   
+3       316.0.0.54.116  2024-09-28 14:08:31           NaN        NaN   
+4        480.0.0.54.88  2024-09-28 14:07:08           NaN        NaN   
+
+       appVersion  
+0             NaN  
+1   483.0.0.51.72  
+2   482.0.0.51.80  
+3  316.0.0.54.116  
+4   480.0.0.54.88  
+
+Data setelah penghapusan kolom:
+                               reviewId              userName  \
+0  41c7fc48-35df-4544-a68a-a0fece45fec9  Achmad Hamdy Prayoga   
+1  4d7fa47f-79ee-4ad0-8df8-cbb09dbb0406              Hehe Kao   
+2  1b8c1ac5-73a6-4efb-b501-d4b759e8c8c9          Musanif Arif   
+3  c9820d7a-ae5f-4d40-9168-0a54b6c385f8       Nurdin Setiawan   
+4  2ae3d2cf-6633-43cd-bf29-aec21bf8d185          Apoy Saputra   
+
+                                        content  score  thumbsUpCount  \
+0                                   Terimakasih      5              0   
+1      Kalo GK bisa bikin iklan Jan bikin iklan      1              0   
+2                                        mantap      5              0   
+3  Facebook sangat bermanfaat bagi kaum rebahan      5              0   
+4                                  Sangat bagus      5              0   
+
+                    at      appVersion  
+0  2024-09-28 14:11:54             NaN  
+1  2024-09-28 14:10:28   483.0.0.51.72  
+2  2024-09-28 14:09:20   482.0.0.51.80  
+3  2024-09-28 14:08:31  316.0.0.54.116  
+4  2024-09-28 14:07:08   480.0.0.54.88  
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 <section id="pendeteksian-outlier">
 <h4>Pendeteksian Outlier<a class="headerlink" href="#pendeteksian-outlier" title="Link to this heading">#</a></h4>
+<p>Untuk pendeteksian outlier saya menggunakan metode LOF(Local Outlier Factor). LOF sendiri merupakan salah satu metode pendeteksian outlier yang bekerja dengan cara membandingkan kerapatan antar titik data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.neighbors</span> <span class="kn">import</span> <span class="n">LocalOutlierFactor</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">)</span> <span class="c1"># Membaca data dari file CSV</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data awal:&quot;</span><span class="p">)</span> <span class="c1"># Menampilkan informasi awal mengenai dataset</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s1">&#39;thumbsUpCount&#39;</span><span class="p">]]</span> <span class="c1"># Memastikan hanya mengambil kolom yang relevan untuk analisis</span>
+
+<span class="c1"># Membuat model LOF</span>
+<span class="n">lof</span> <span class="o">=</span> <span class="n">LocalOutlierFactor</span><span class="p">(</span><span class="n">n_neighbors</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>  <span class="c1"># n_neighbors dapat disesuaikan</span>
+
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_outlier&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lof</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="c1"># Melatih model dan mendeteksi outlier</span>
+
+<span class="c1"># Menampilkan hasil</span>
+<span class="n">outliers</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_outlier&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># LOF mengembalikan -1 untuk outlier, 1 untuk inlier</span>
+
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;reviews_with_LOF_outliers.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># Menyimpan hasil ke file baru jika diinginkan</span>
+
+<span class="c1"># Menampilkan outliers</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Detected Outliers using LOF:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span>
+
+<span class="c1"># Menampilkan jumlah outlier yang terdeteksi</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Jumlah outlier terdeteksi: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">outliers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Data awal:
+                               reviewId              userName  \
+0  41c7fc48-35df-4544-a68a-a0fece45fec9  Achmad Hamdy Prayoga   
+1  4d7fa47f-79ee-4ad0-8df8-cbb09dbb0406              Hehe Kao   
+2  1b8c1ac5-73a6-4efb-b501-d4b759e8c8c9          Musanif Arif   
+3  c9820d7a-ae5f-4d40-9168-0a54b6c385f8       Nurdin Setiawan   
+4  2ae3d2cf-6633-43cd-bf29-aec21bf8d185          Apoy Saputra   
+
+                                        content  score  thumbsUpCount  \
+0                                   Terimakasih      5              0   
+1      Kalo GK bisa bikin iklan Jan bikin iklan      1              0   
+2                                        mantap      5              0   
+3  Facebook sangat bermanfaat bagi kaum rebahan      5              0   
+4                                  Sangat bagus      5              0   
+
+                    at      appVersion  
+0  2024-09-28 14:11:54             NaN  
+1  2024-09-28 14:10:28   483.0.0.51.72  
+2  2024-09-28 14:09:20   482.0.0.51.80  
+3  2024-09-28 14:08:31  316.0.0.54.116  
+4  2024-09-28 14:07:08   480.0.0.54.88  
+Detected Outliers using LOF:
+                                 reviewId            userName  \
+73   afa49c1b-c883-42ce-8024-e9f0bb627c6a        Dock Merdock   
+122  287e6aa5-2128-472b-b110-cabdd89ec7ec          Helo Kitty   
+228  c4c1c7ef-5b9e-4036-a3c7-b424b833a29f   Suyanto Grabjogja   
+343  eb5a670d-1baa-4b4e-8e1e-23c3ffadcd33     kuryadi candera   
+373  0c016071-65b6-4c93-937a-fc5cb12692d6            Kia Jr24   
+385  3858f5e4-2d6d-49b7-bd20-4cb38ea173e2        Rifky Arkhan   
+429  c333f2d3-2f34-4688-899a-ccf94ed3c1e5    Nendri Alexander   
+441  03183904-7d1e-4072-bf31-e00daa8e9737  Nuur Al Farokaanie   
+
+                                               content  score  thumbsUpCount  \
+73   Sebernya pemutaran berapa di rell biar dapet 0...      1              8   
+122  aplikasi facebook ngeBUG,menu buat pengaturan/...      1            507   
+228  halaman Notifikasi ku Hilang tidak bisa di buk...      2              1   
+343  aku sangat. puas dengan aplikasi kasi nya 🙏tap...      5              1   
+373  Di update makin aneh !!! Posting marketplace m...      1             13   
+385                                         keren deng      5              1   
+429  Facebook luar biasa bagus untuk berkomunikasi ...      5              8   
+441  Masa iya,mau baca status video yang panjang ha...      1              9   
+
+                      at      appVersion  is_outlier  
+73   2024-09-28 11:49:31   483.0.0.51.72          -1  
+122  2024-09-28 10:14:49   483.0.0.51.72          -1  
+228  2024-09-28 05:18:54  348.0.0.39.118          -1  
+343  2024-09-28 00:53:12   460.0.0.34.89          -1  
+373  2024-09-27 23:15:54   483.0.0.51.72          -1  
+385  2024-09-27 22:34:50   483.0.0.51.72          -1  
+429  2024-09-27 17:31:52   482.0.0.51.80          -1  
+441  2024-09-27 16:58:48   483.0.0.51.72          -1  
+Jumlah outlier terdeteksi: 8
+</pre></div>
+</div>
+</div>
+</div>
+<p>Pada dataset yang saya gunakan hanya fitur thumbsUpCounter saja yang memungkinkan adanya outlier. Namun karena dataset yang saya scrap adalah data terbaru dan hasil menunjukkan record yang dideteksi sebagai outlier memiliki nilai thumbsUpCounter 0 yang sama dengan record lain, maka record yang terdeteksi sebagai outlier tersebut saya abaikan. Hal tersebut saya lakukan karena adanya outlier menuntut keberagaman data.</p>
 </section>
 <section id="pendeteksian-missing-value">
 <h4>Pendeteksian Missing Value<a class="headerlink" href="#pendeteksian-missing-value" title="Link to this heading">#</a></h4>
+<p>Pada langkah ini dilakukan pendeteksian missing value terhadap dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Membaca data dari file CSV</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Menghitung jumlah dan persentase missing values untuk setiap kolom</span>
+<span class="n">missing_values</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">missing_percentage</span> <span class="o">=</span> <span class="p">(</span><span class="n">missing_values</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="c1"># Menggabungkan informasi jumlah dan persentase ke dalam DataFrame</span>
+<span class="n">missing_info</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;Missing Values&#39;</span><span class="p">:</span> <span class="n">missing_values</span><span class="p">,</span>
+    <span class="s1">&#39;Percentage&#39;</span><span class="p">:</span> <span class="n">missing_percentage</span>
+<span class="p">})</span>
+
+<span class="c1"># Menampilkan hasil</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Missing Values Ditemukan:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">missing_info</span><span class="p">[</span><span class="n">missing_info</span><span class="p">[</span><span class="s1">&#39;Missing Values&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">])</span>  <span class="c1"># Hanya menampilkan kolom dengan missing values</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Missing Values Ditemukan:
+            Missing Values  Percentage
+appVersion             130        26.0
+</pre></div>
+</div>
+</div>
+</div>
+<p>Setelah missing value ditemukan, langkah selanjutnya adalah imputasi missing value.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Baca data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;reviews_cleaned.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># Hitung modus dari kolom &#39;appVersion&#39;</span>
+<span class="n">mode_appVersion</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;appVersion&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mode</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># Isi missing value dengan modus</span>
+<span class="n">data</span><span class="p">[</span><span class="s1">&#39;appVersion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;appVersion&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">mode_appVersion</span><span class="p">)</span>
+
+<span class="c1"># Simpan data yang telah diimputasi</span>
+<span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;reviews_imputed_appVersion.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+  <div id="df-84612808-b319-4e77-9c00-40f0dd26c6ba" class="colab-df-container">
+    <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>reviewId</th>
+      <th>userName</th>
+      <th>content</th>
+      <th>score</th>
+      <th>thumbsUpCount</th>
+      <th>at</th>
+      <th>appVersion</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>41c7fc48-35df-4544-a68a-a0fece45fec9</td>
+      <td>Achmad Hamdy Prayoga</td>
+      <td>Terimakasih</td>
+      <td>5</td>
+      <td>0</td>
+      <td>2024-09-28 14:11:54</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4d7fa47f-79ee-4ad0-8df8-cbb09dbb0406</td>
+      <td>Hehe Kao</td>
+      <td>Kalo GK bisa bikin iklan Jan bikin iklan</td>
+      <td>1</td>
+      <td>0</td>
+      <td>2024-09-28 14:10:28</td>
+      <td>483.0.0.51.72</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1b8c1ac5-73a6-4efb-b501-d4b759e8c8c9</td>
+      <td>Musanif Arif</td>
+      <td>mantap</td>
+      <td>5</td>
+      <td>0</td>
+      <td>2024-09-28 14:09:20</td>
+      <td>482.0.0.51.80</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>c9820d7a-ae5f-4d40-9168-0a54b6c385f8</td>
+      <td>Nurdin Setiawan</td>
+      <td>Facebook sangat bermanfaat bagi kaum rebahan</td>
+      <td>5</td>
+      <td>0</td>
+      <td>2024-09-28 14:08:31</td>
+      <td>316.0.0.54.116</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2ae3d2cf-6633-43cd-bf29-aec21bf8d185</td>
+      <td>Apoy Saputra</td>
+      <td>Sangat bagus</td>
+      <td>5</td>
+      <td>0</td>
+      <td>2024-09-28 14:07:08</td>
+      <td>480.0.0.54.88</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-84612808-b319-4e77-9c00-40f0dd26c6ba')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-84612808-b319-4e77-9c00-40f0dd26c6ba button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-84612808-b319-4e77-9c00-40f0dd26c6ba');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-01753bac-cb55-4e7c-b8a5-184cb4e95860">
+  <button class="colab-df-quickchart" onclick="quickchart('df-01753bac-cb55-4e7c-b8a5-184cb4e95860')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-01753bac-cb55-4e7c-b8a5-184cb4e95860 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+
+    </div>
+  </div>
+</div></div>
+</div>
 </section>
 </section>
 <section id="modeling">
@@ -512,15 +1345,6 @@ document.write(`
                 <footer class="prev-next-footer">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="intro.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Welcome to your Jupyter Book</p>
-      </div>
-    </a>
 </div>
                 </footer>
               
@@ -547,8 +1371,9 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-understanding">1. Data Understanding</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pengumpulan-data">Pengumpulan Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-dataset">Deskripsi Dataset</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-fitur-dan-label">Deskripsi Fitur dan Label</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deskripsi-fitur">Deskripsi Fitur</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-preprocessing">2. Data Preprocessing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#data-cleaning">Data Cleaning</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pendeteksian-outlier">Pendeteksian Outlier</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pendeteksian-missing-value">Pendeteksian Missing Value</a></li>
 </ul>
